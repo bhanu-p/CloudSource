@@ -1,0 +1,254 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(to right, #a1ffce, #faffd1);
+  color: #333;
+  margin: 0;
+  padding: 0;
+} */
+
+/* Navigation bar */
+nav {
+  background-color: #ffffff;
+  padding: 1rem;
+  text-align: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+nav a {
+  color: #007acc;
+  margin: 0 1rem;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+nav a:hover {
+  color: #005f99;
+}
+
+/* Forms */
+form {
+  max-width: 500px;
+  min-width: 400px;
+  background: #ffffff;
+  margin: 3rem auto;
+  padding: 2rem;
+  border-radius: 15px;
+  box-shadow: 10px 10px 25px rgba(0, 0, 0, 0.1);
+  color: #333;
+}
+
+h2,
+h3 {
+  text-align: center;
+  color: #222;
+  margin-bottom: 1.2rem;
+}
+
+h2 {
+  text-align: center;
+  font-size: 1.8rem;
+  color: #111;
+  margin-bottom: 1rem;
+}
+
+input {
+  width: 100%;
+  padding: 12px 16px;
+  /* top/bottom padding */
+  margin: 0.5rem 0;
+  border: 1px solid #333232;
+  border-radius: 8px;
+  font-size: 1rem;
+  line-height: 1.5;
+  background-color: #fff;
+  color: #333;
+  box-sizing: border-box;
+}
+
+input::placeholder {
+  color: #999;
+  opacity: 1;
+}
+
+/* input:focus {
+  outline: none;
+  border-color: #66a6ff;
+  box-shadow: 0 0 5px rgba(237, 255, 102, 0.5);
+} */
+
+/* Buttons */
+button {
+  background-color: rgb(47, 134, 255);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 1rem;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #7db1ed;
+}
+
+/* Paragraphs and inline buttons */
+p {
+  margin: 0.5rem 0;
+  font-size: 1rem;
+  text-align: center;
+}
+
+p button {
+  background: none;
+  color: #007acc;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+p button:hover {
+  color: #005f99;
+  text-decoration: underline;
+}
+
+/* Error message styling */
+p[style*="color: red"] {
+  color: #e53935 !important;
+  margin-top: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* Onboarding / Dashboard Container */
+.page-container {
+  max-width: 900px;
+  margin: 3rem auto;
+  padding: 2rem;
+  background: #ffffff;
+  border-radius: 15px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  color: #333;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+
+  form,
+  .page-container {
+    margin: 1rem;
+    padding: 1.5rem;
+  }
+
+  .page-container h1 {
+    font-size: 1.75rem;
+  }
+}
+
+
+
+
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Segoe UI", sans-serif;
+  background: linear-gradient(to right, #8ab9e3, #77c2c6);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 40px;
+}
+
+.onboard-container {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  padding: 30px 40px;
+  width: 90%;
+  max-width: 600px;
+  min-width: 600px;
+}
+
+.onboard-container h2 {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #333;
+}
+
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+input,
+select,
+label {
+  font-size: 16px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: #4facfe;
+  box-shadow: 0 0 5px rgba(79, 172, 254, 0.5);
+}
+
+button {
+  padding: 12px 18px;
+  font-size: 16px;
+  background-color: #4facfe;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  width: 100%;
+  transition: background 0.3s ease;
+}
+
+button:hover {
+  background-color: #3893fc;
+}
+
+h4 {
+  margin-bottom: 10px;
+  color: #444;
+  font-size: 18px;
+  border-left: 5px solid #4facfe;
+  padding-left: 10px;
+}
+
+.error {
+  color: red;
+  font-size: 14px;
+  margin-top: 4px;
+  margin-left: 5px;
+}
+
+.edu-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+label {
+  margin-bottom: 4px;
+  font-weight: 500;
+}
