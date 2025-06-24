@@ -132,6 +132,7 @@ const Login = () => {
       return;
     }
 
+    
     const usersString = localStorage.getItem("appUsers");
     const appUsers = usersString ? JSON.parse(usersString) : [];
 
@@ -145,6 +146,8 @@ const Login = () => {
     }
 
     setSuccess("Login successful!");
+
+    // Use backticks for template literals
     const visitedKey = `onboardData_${user.phone}`;
     const hasVisited = localStorage.getItem(visitedKey) != null;
 
