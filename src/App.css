@@ -3,7 +3,8 @@
   --primary-dark: #1565c0;
   --primary-light: #e3f2fd;
   --secondary: #43a047;
-  --background: #f5faff;
+  /* --background: #f5faff; */
+  --background: #fff; 
   --card-bg: #fff;
   --border: #1976d2;
   --text: #222;
@@ -22,7 +23,9 @@ body {
   margin: 0;
   padding: 0;
   font-family: "Segoe UI", sans-serif;
-  background: linear-gradient(120deg, #f3f8fd 0%, #eaf6fb 100%);
+   /* background: linear-gradient(120deg, #f3f8fd 0%, #eaf6fb 100%);  */
+    background: #fff; 
+  
   min-height: 100vh;
   display: flex;
   justify-content: center;
@@ -382,14 +385,14 @@ label {
 }
 
 /* Dashboard styles */
-.dashboard-container {
+/* .dashboard-container {
   max-width: 1400px;
   margin: 0 auto;
   padding: 2.5rem 2rem;
   background: var(--background);
   border-radius: 18px;
   box-shadow: 0 4px 24px rgba(25, 118, 210, 0.10);
-}
+} */
 
 .tab-bar-outline {
   display: flex;
@@ -604,7 +607,8 @@ label {
   max-width: none;
   margin: 3rem auto;
   padding: 2rem;
-  background: var(--card-bg);
+  /* background: var(--card-bg); */
+   background: var(--background); /* Use the same background everywhere */
   border-radius: 15px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   color: var(--text);
@@ -1133,7 +1137,8 @@ body,
   height: 100%;
   width: 100%;
   font-family: 'Segoe UI', sans-serif;
-  background-color: #f7f7f7f1;
+  /* background-color: #f7f7f7f1; */
+  background-color: #fff;
 
 }
 
@@ -1857,17 +1862,6 @@ body,
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
 /* Userdashboard styles */
 .page-container {
   min-height: 100vh;
@@ -2007,3 +2001,9 @@ body,
 }
 
 
+.onboard-container,
+.page-container,
+.dashboard-container {
+  /* ...existing code... */
+  box-shadow: 0 8px 32px rgba(25, 118, 210, 0.18), 0 16px 48px rgba(0,0,0,0.13), 0 1.5px 8px rgba(67, 160, 71, 0.06);
+}
