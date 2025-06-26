@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaUserCircle, FaPlus, FaTrash, FaBell } from "react-icons/fa";
+import { FaUserCircle, FaPlus, FaTrash, FaBell,FaListOl,FaTasks,FaCheckCircle,FaHourglassHalf } from "react-icons/fa";
 import Header from "./header";
 
 const AdminDashboard = () => {
@@ -19,6 +19,11 @@ const AdminDashboard = () => {
   const [answerType, setAnswerType] = useState("single"); 
   const [multipleAnswers, setMultipleAnswers] = useState(["", ""]);
 
+
+  const totalQuestions = qaList.length;
+  const pushedQuestions = qaList.filter(q => q.received).length;
+  const attemptedQuestions = qaList.filter(q => q.answered).length;
+  const pendingQuestions = pushedQuestions - attemptedQuestions;
 
   useEffect(() => {
     if (answerType === "single") {
@@ -87,13 +92,61 @@ const handleSetQA = () => {
         handleLogout={handleLogout}
       />
 
-      <div className="admin-dashboard-add-card" onClick={() => setShowPopup(true)}>
+
+
+      <div className="admin-card-row-wide">
+
+        
+        <div className="admin-card admin-card-blue admin-card-outline" >
+          <FaListOl className="admin-card-icon blue" style={{ color: "#512da8", fontWeight: "bold" }}/>
+          <div>
+            <h3>Total Questions</h3>
+            <p style={{ color: "#512da8", fontWeight: "bold" }}>{totalQuestions}</p>
+          </div>
+        </div>
+
+        <div className="admin-card admin-card-blue admin-card-outline">
+          <FaTasks className="admin-card-icon purple" style={{ color: "#c49000", fontWeight: "bold" }} />
+          <div>
+            <h3>Pushed</h3>
+            <p style={{ color: "#c49000", fontWeight: "bold" }}>{pushedQuestions}</p>
+          </div>
+        </div>
+
+        <div className="admin-card admin-card-blue admin-card-outline">
+          <FaCheckCircle className="admin-card-icon green" style={{ color: "#43a047", fontWeight: "bold" }}/>
+          <div>
+            <h3>Attempted</h3>
+            <p style={{ color: "#43a047", fontWeight: "bold" }}>{attemptedQuestions}</p>
+          </div>
+        </div>
+
+                  <div className="admin-card admin-card-add" onClick={() => setShowPopup(true)}>
+            <div className="admin-card-icon-wrapper">
+              <FaPlus className="admin-card-icon" />
+            </div>
+            <div>
+              <h3>New Question</h3>
+              <p>For creating Questions</p>
+            </div>
+          </div>
+
+      </div>
+
+    
+
+
+
+      {/* <div className="admin-dashboard-add-card" onClick={() => setShowPopup(true)}>
         <div className="admin-dashboard-add-icon">
           <FaPlus />
         </div>
         <h4>New Question</h4>
         <p>For creating Question</p>
-      </div>
+      </div> */}
+
+
+
 
       {qaList.length > 0 && (
         <div className="admin-dashboard-card">
@@ -104,7 +157,13 @@ const handleSetQA = () => {
             {qaList.map((qa, index) => (
               <li
                 key={qa.id}
-                style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}
+                style={{ 
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  padding: "10px 12px",
+                  borderBottom: "1px solid #e0e0e0",
+                }}
               >
                 <div>
                   <strong>Q: {qa.title}</strong> <br />
@@ -157,33 +216,10 @@ const handleSetQA = () => {
               />
               {error && <p className="admin-dashboard-error-text">{error}</p>}
 
-{/*               
-              <div style={{ marginTop: "10px" }}>
-                <label style={{ marginRight: "16px" , userSelect: "none",}}>
-                  <input
-                    type="radio"
-                    name="answerType"
-                    value="single"
-                    checked={answerType === "single"}
-                    onChange={() => setAnswerType("single")}
-                  />
-                  Single Answer
-                </label>
-                <label>
-                  <input
-                    type="radio"
-                    name="answerType"
-                    value="multiple"
-                    checked={answerType === "multiple"}
-                    onChange={() => setAnswerType("multiple")}
-                  />
-                  Multiple Answers
-                </label>
-              </div> */}
 
-            <div className="answer-type-container">
+            <div className="admin-dashboard-answer-type-container">
               {["single", "multiple"].map((type) => (
-                <label key={type} className="answer-type-option">
+                <label key={type} className="admin-dashboard-answer-type-option">
                   <input
                     type="radio"
                     name="answerType"
@@ -191,27 +227,12 @@ const handleSetQA = () => {
                     checked={answerType === type}
                     onChange={() => setAnswerType(type)}
                   />
-                  <span className={`custom-radio ${answerType === type ? "checked" : ""}`}></span>
+                  <span className={`admin-dashboard-custom-radio ${answerType === type ? "checked" : ""}`}></span>
                   {type === "single" ? "Single Answer" : "Multiple Answers"}
                 </label>
               ))}
             </div>
-
-
-
             </div>
-
-            {/* <div className="admin-dashboard-popup-field">
-              <label>Answer</label>
-              <textarea
-                value={answer}
-                onChange={(e) => setAnswer(e.target.value)}
-                placeholder="Type the answer here"
-                className="admin-dashboard-popup-textarea"
-                rows={3}
-              />
-            </div> */}
-
 
             <div className="admin-dashboard-popup-field">
               <label>Answer</label>
