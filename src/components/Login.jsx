@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-// import "./Login.css"; // Importing the CSS
 
 const Login = () => {
   const [mobile, setMobile] = useState("");
@@ -24,7 +23,7 @@ const Login = () => {
       setSuccess("Admin Login Successful!");
       setTimeout(() => {
         navigate("/admindashboard");
-      }, 1500);
+      }, 1000);
       return;
     }
 
@@ -34,22 +33,23 @@ const Login = () => {
       return;
     }
 
-    
     const usersString = localStorage.getItem("appUsers");
     const appUsers = usersString ? JSON.parse(usersString) : [];
 
-    const user = appUsers.find(
-      (user) => user.phone === mobile && user.password === password
-    );
+    const user = appUsers.find((user) => user.phone === mobile);
 
-    if (!user) {
+    if( !user) {
+      setError("User not found. Please register first.");
+      return;
+    }
+
+    if (user.password !== password) {
       setError("Incorrect mobile number or password.");
       return;
     }
 
     setSuccess("Login successful!");
 
-    // Use backticks for template literals
     const visitedKey = `onboardData_${user.phone}`;
     const hasVisited = localStorage.getItem(visitedKey) != null;
 
@@ -85,6 +85,13 @@ const Login = () => {
         {error && <p className="error-text">{error}</p>}
         {success && <p className="success-text">{success}</p>}
 
+        <div className="login-resetPassword-redirect" style={{ textAlign: "right", marginBottom: "12px" }}>
+          <p>
+          <button type="button" onClick={() => navigate("/resetPassword")}>
+            Forget Password?
+          </button>
+          </p>
+        </div>
       
         <button type="submit" className="register-login-button">LOGIN</button>
         

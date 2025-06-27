@@ -280,7 +280,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaUserCircle, FaPlus, FaTrash, FaBell,FaListOl,FaTasks,FaCheckCircle,FaHourglassHalf } from "react-icons/fa";
+import { FaUserCircle, FaPlus, FaTrash, FaBell, FaListOl, FaTasks, FaCheckCircle, FaHourglassHalf } from "react-icons/fa";
 import Header from "./header";
 
 const AdminDashboard = () => {
@@ -296,8 +296,9 @@ const AdminDashboard = () => {
   const [answer, setAnswer] = useState("");
   const [error, setError] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
-  const [answerType, setAnswerType] = useState("single"); 
+  const [answerType, setAnswerType] = useState("single");
   const [multipleAnswers, setMultipleAnswers] = useState(["", ""]);
+  const [multipleChoiceOptions, setMultipleChoiceOptions] = useState([{ value: "", checked: false }]);
 
   // Get admin credentials from localStorage (or your login state)
   const currentUsername = localStorage.getItem("currentUsername") || "Admin";
@@ -311,10 +312,16 @@ const AdminDashboard = () => {
   useEffect(() => {
     if (answerType === "single") {
       setMultipleAnswers(["", ""]);
-    } else {
+      setMultipleChoiceOptions([{ value: "", checked: false }]);
+    } else if (answerType === "multiple") {
       setAnswer("");
+      setMultipleChoiceOptions([{ value: "", checked: false }]);
+    } else if (answerType === "multipleChoice") {
+      setAnswer("");
+      setMultipleAnswers(["", ""]);
     }
   }, [answerType]);
+
 
   const handleLogout = () => {
     navigate("/");
@@ -325,6 +332,20 @@ const AdminDashboard = () => {
       setError("Please enter the question.");
       return;
     }
+
+
+    if (answerType === "multipleChoice") {
+      const validOptions = multipleChoiceOptions.filter(opt => opt.value.trim() !== "");
+      if (validOptions.length < 2) {
+        setError("Please enter at least two options.");
+        return;
+      }
+      if (!validOptions.some(opt => opt.checked)) {
+        setError("Please select at least one correct answer.");
+        return;
+      }
+    }
+
 
     const getNextId = () => {
       if (qaList.length === 0) return 1;
@@ -339,7 +360,13 @@ const AdminDashboard = () => {
     const newQA = {
       id: newId,
       title: question,
-      answer: answerType === "single" ? answer : multipleAnswers,
+      // answer: answerType === "single" ? answer : multipleAnswers,
+      answer:
+        answerType === "single"
+          ? answer
+          : answerType === "multiple"
+            ? multipleAnswers
+            : multipleChoiceOptions,
       answerType: answerType,
       received: false,
       answered: false,
@@ -354,6 +381,8 @@ const AdminDashboard = () => {
     setError("");
     setShowPopup(false);
     setShowSuccess(true);
+    setMultipleAnswers(["", ""]);
+    setMultipleChoiceOptions([{ value: "", checked: false }]);
   };
 
   const handleDeleteQA = (index) => {
@@ -376,10 +405,8 @@ const AdminDashboard = () => {
 
 
       <div className="admin-card-row-wide">
-
-        
         <div className="admin-card admin-card-blue admin-card-outline" >
-          <FaListOl className="admin-card-icon blue" style={{ color: "#512da8", fontWeight: "bold" }}/>
+          <FaListOl className="admin-card-icon blue" style={{ color: "#512da8", fontWeight: "bold" }} />
           <div>
             <h3>Total Questions</h3>
             <p style={{ color: "#512da8", fontWeight: "bold" }}>{totalQuestions}</p>
@@ -395,39 +422,24 @@ const AdminDashboard = () => {
         </div>
 
         <div className="admin-card admin-card-blue admin-card-outline">
-          <FaCheckCircle className="admin-card-icon green" style={{ color: "#43a047", fontWeight: "bold" }}/>
+          <FaCheckCircle className="admin-card-icon green" style={{ color: "#43a047", fontWeight: "bold" }} />
           <div>
             <h3>Attempted</h3>
             <p style={{ color: "#43a047", fontWeight: "bold" }}>{attemptedQuestions}</p>
           </div>
         </div>
 
-                  <div className="admin-card admin-card-add" onClick={() => setShowPopup(true)}>
-            <div className="admin-card-icon-wrapper">
-              <FaPlus className="admin-card-icon" />
-            </div>
-            <div>
-              <h3>New Question</h3>
-              <p>For creating Questions</p>
-            </div>
+        <div className="admin-card admin-card-add" onClick={() => setShowPopup(true)}>
+          <div className="admin-card-icon-wrapper">
+            <FaPlus className="admin-card-icon" />
           </div>
+          <div>
+            <h3>New Question</h3>
+            <p>For creating Questions</p>
+          </div>
+        </div>
 
       </div>
-
-    
-
-
-
-      {/* <div className="admin-dashboard-add-card" onClick={() => setShowPopup(true)}>
-        <div className="admin-dashboard-add-icon">
-          <FaPlus />
-        </div>
-        <h4>New Question</h4>
-        <p>For creating Question</p>
-      </div> */}
-
-
-
 
       {qaList.length > 0 && (
         <div className="admin-dashboard-card">
@@ -438,7 +450,7 @@ const AdminDashboard = () => {
             {qaList.map((qa, index) => (
               <li
                 key={qa.id}
-                style={{ 
+                style={{
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
@@ -448,13 +460,18 @@ const AdminDashboard = () => {
               >
                 <div>
                   <strong>Q: {qa.title}</strong> <br />
-                  <strong>A:</strong> 
-                  {" "}
+
+                  <strong>A:</strong>  {" "}
                   {Array.isArray(qa.answer) ? (
                     <div>
                       {qa.answer.map((ans, idx) => (
                         <div key={idx}>
-                          <strong>Answer {idx + 1}:</strong> {ans}
+                          {typeof ans === "string" ? (
+                            <strong>Answer {idx + 1}:</strong>
+                          ) : (
+                            <strong>Option {idx + 1}{ans.checked ? " ✅" : ""}:</strong>
+                          )}{" "}
+                          {typeof ans === "string" ? ans : ans.value}
                         </div>
                       ))}
                     </div>
@@ -478,74 +495,144 @@ const AdminDashboard = () => {
       {showPopup && (
         <div className="admin-dashboard-popup-overlay">
           <div className="admin-dashboard-question-popup-box">
-            <button
-              className="admin-dashboard-popup-close-icon"
-              onClick={() => setShowPopup(false)}
-            >
-              ×
-            </button>
-            <h2 className="admin-dashboard-popup-title">Add Question</h2>
+            <div className="admin-dashboard-popup-scrollbox">
+              <button
+                className="admin-dashboard-popup-close-icon"
+                onClick={() => setShowPopup(false)}
+              >
+                ×
+              </button>
+              <h2 className="admin-dashboard-popup-title">Add Question</h2>
 
-            <div className="admin-dashboard-popup-field">
-              <label>Question</label>
-              <textarea
-                value={question}
-                onChange={(e) => setQuestion(e.target.value)}
-                placeholder="Type your question here"
-                className="admin-dashboard-popup-textarea"
-                rows={2}
-              />
-              {error && <p className="admin-dashboard-error-text">{error}</p>}
-
-
-            <div className="admin-dashboard-answer-type-container">
-              {["single", "multiple"].map((type) => (
-                <label key={type} className="admin-dashboard-answer-type-option">
-                  <input
-                    type="radio"
-                    name="answerType"
-                    value={type}
-                    checked={answerType === type}
-                    onChange={() => setAnswerType(type)}
-                  />
-                  <span className={`admin-dashboard-custom-radio ${answerType === type ? "checked" : ""}`}></span>
-                  {type === "single" ? "Single Answer" : "Multiple Answers"}
-                </label>
-              ))}
-            </div>
-            </div>
-
-            <div className="admin-dashboard-popup-field">
-              <label>Answer</label>
-              {answerType === "single" ? (
+              <div className="admin-dashboard-popup-field">
+                <label>Question</label>
                 <textarea
-                  value={answer}
-                  onChange={(e) => setAnswer(e.target.value)}
-                  placeholder="Type the answer here"
+                  value={question}
+                  onChange={(e) => setQuestion(e.target.value)}
+                  placeholder="Type your question here"
                   className="admin-dashboard-popup-textarea"
-                  rows={3}
+                  rows={2}
                 />
-              ) : (
-                <>
-                  <textarea
-                    value={multipleAnswers[0]}
-                    onChange={e => setMultipleAnswers([e.target.value, multipleAnswers[1]])}
-                    placeholder="Type answer 1 here"
-                    className="admin-dashboard-popup-textarea"
-                    rows={2}
-                    style={{ marginBottom: "8px" }}
-                  />
-                  <textarea
-                    value={multipleAnswers[1]}
-                    onChange={e => setMultipleAnswers([multipleAnswers[0], e.target.value])}
-                    placeholder="Type answer 2 here"
-                    className="admin-dashboard-popup-textarea"
-                    rows={2}
-                  />
-                </>
-              )}
-            </div>
+                {error && <p className="admin-dashboard-error-text">{error}</p>}
 
+                <div className="admin-dashboard-answer-type-container">
+                  {["single", "multiple", "multipleChoice"].map((type) => (
+                    <label key={type} className="admin-dashboard-answer-type-option">
+                      <input
+                        type="radio"
+                        name="answerType"
+                        value={type}
+                        checked={answerType === type}
+                        onChange={() => setAnswerType(type)}
+                      />
+                      <span className={`admin-dashboard-custom-radio ${answerType === type ? "checked" : ""}`}></span>
+                      {type === "single"
+                        ? "Single Answer"
+                        : type === "multiple"
+                          ? "Multiple Answers"
+                          : "Multiple Choice"}
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div className="admin-dashboard-popup-field">
+                <label>Answer</label>
+                {answerType === "single" ? (
+                  <textarea
+                    value={answer}
+                    onChange={(e) => setAnswer(e.target.value)}
+                    placeholder="Type the answer here"
+                    className="admin-dashboard-popup-textarea"
+                    rows={3}
+                  />
+                ) : answerType === "multiple" ? (
+                  <>
+                    <textarea
+                      value={multipleAnswers[0]}
+                      onChange={e => setMultipleAnswers([e.target.value, multipleAnswers[1]])}
+                      placeholder="Type answer 1 here"
+                      className="admin-dashboard-popup-textarea"
+                      rows={2}
+                      style={{ marginBottom: "8px" }}
+                    />
+                    <textarea
+                      value={multipleAnswers[1]}
+                      onChange={e => setMultipleAnswers([multipleAnswers[0], e.target.value])}
+                      placeholder="Type answer 2 here"
+                      className="admin-dashboard-popup-textarea"
+                      rows={2}
+                    />
+                  </>
+                ) : (
+
+                  // <div className="admin-dashboard-popup-scrollbox">
+                  <div className="admin-dashboard-multiple-choice-container">
+                    {multipleChoiceOptions.map((option, idx) => (
+                      <div key={idx} className="admin-dashboard-multiple-choice-row">
+                        <input
+                          // type="checkbox"
+                          // checked={option.checked}
+                          // onChange={e => {
+                          //   const updated = [...multipleChoiceOptions];
+                          //   updated[idx].checked = e.target.checked;
+                          //   setMultipleChoiceOptions(updated);
+                          // }}
+                          // className="admin-dashboard-checkbox"
+
+                          type="checkbox"
+                          name="multipleChoiceCorrect"
+                          checked={option.checked}
+                          onChange={() => {
+                            const updated = multipleChoiceOptions.map((opt, i) => ({
+                              ...opt,
+                              checked: i === idx
+                            }));
+                            setMultipleChoiceOptions(updated);
+                          }}
+                          className="admin-dashboard-checkbox"
+                        />
+                        <input
+                          type="text"
+                          value={option.value}
+                          onChange={e => {
+                            const updated = [...multipleChoiceOptions];
+                            updated[idx].value = e.target.value;
+                            setMultipleChoiceOptions(updated);
+                          }}
+                          placeholder={`Option ${idx + 1}`}
+                          className="admin-dashboard-multiple-choice-input"
+                        />
+                        {multipleChoiceOptions.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setMultipleChoiceOptions(multipleChoiceOptions.filter((_, i) => i !== idx));
+                            }}
+                            className="admin-dashboard-remove-option"
+                            title="Remove option"
+                          >
+                            ×
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setMultipleChoiceOptions([...multipleChoiceOptions, { value: "", checked: false }])
+                      }
+                      className="admin-dashboard-add-option"
+                    >
+                      + Add Option
+                    </button>
+                  </div>
+                  // </div>
+
+                )}
+              </div>
+
+            </div>
             <div className="admin-dashboard-popup-actions">
               <button className="admin-dashboard-popup-button" onClick={handleSetQA}>
                 Submit
