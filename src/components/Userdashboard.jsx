@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import Header from "./header";
 import Tasks from "./Tasks";
+import ProfilePage from "./ProfilePage";
 import { FaListOl, FaTasks, FaHourglassHalf, FaCheckCircle } from "react-icons/fa";
 import "../App.css";
 
@@ -63,44 +65,38 @@ const UserDashboard = () => {
     const saved = localStorage.getItem("userAnswers");
     return saved ? JSON.parse(saved) : {};
   });
-  const [showProfile, setShowProfile] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
 
   // For progressive reveal of questions
   const [visibleCount, setVisibleCount] = useState(() => {
-    // On reload, show as many as have received:true in localStorage
     const questions = getQuestionsFromSession();
     return questions.filter(q => q.received).length || 1;
   });
-  //stores the timer ID returned by setInterval
-  // This allows us to clear the interval later
   const intervalRef = useRef(null);
-  
-useEffect(() => {
-  intervalRef.current = setInterval(() => {
-    const questions = getQuestionsFromSession();
-    const receivedCount = questions.filter(q => q.received).length;
-    if (receivedCount < questions.length) {
-      // Mark the next question as received:true in localStorage
-      const updatedQuestions = questions.map((q, idx) =>
-        idx === receivedCount ? { ...q, received: true } : q
-      );
-      localStorage.setItem("questions", JSON.stringify(updatedQuestions));
-      setVisibleCount(receivedCount + 1);
-    }
-  },2*60*1000); // 2 minutes
 
-  return () => clearInterval(intervalRef.current);
-}, []);
+  useEffect(() => {
+    intervalRef.current = setInterval(() => {
+      const questions = getQuestionsFromSession();
+      const receivedCount = questions.filter(q => q.received).length;
+      if (receivedCount < questions.length) {
+        const updatedQuestions = questions.map((q, idx) =>
+          idx === receivedCount ? { ...q, received: true } : q
+        );
+        localStorage.setItem("questions", JSON.stringify(updatedQuestions));
+        setVisibleCount(receivedCount + 1);
+      }
+    }, 2 * 60 * 1000); // 2 minutes
 
-  // Keep userAnswers in sync with localStorage
+    return () => clearInterval(intervalRef.current);
+  }, []);
+
   useEffect(() => {
     localStorage.setItem("userAnswers", JSON.stringify(answers));
   }, [answers]);
 
-  // Load questions and keep in sync with localStorage
   const [questionsData, setQuestionsData] = useState(getQuestionsFromSession);
 
-  // Sync questionsData with localStorage and visibleCount
   useEffect(() => {
     const handleStorage = () => {
       setQuestionsData(getQuestionsFromSession());
@@ -109,16 +105,12 @@ useEffect(() => {
     return () => window.removeEventListener("storage", handleStorage);
   }, []);
 
-  // Also update questionsData when visibleCount changes (to reflect received:true)
   useEffect(() => {
     setQuestionsData(getQuestionsFromSession());
   }, [visibleCount]);
 
-  // When a user answers, update both userAnswers and the question's answered status
   const handleAnswer = (id, value) => {
     setAnswers((prev) => ({ ...prev, [id]: value }));
-
-    // Update answered: true for this question in localStorage
     let questions = JSON.parse(localStorage.getItem("questions") || "[]");
     questions = questions.map(q =>
       q.id === id ? { ...q, answered: true } : q
@@ -127,7 +119,6 @@ useEffect(() => {
     setQuestionsData(questions);
   };
 
-  // Only show questions that are received (assigned)
   const receivedQuestions = questionsData.filter(q => q.received);
   const totalQuestions = questionsData.length;
   const assignedQuestions = receivedQuestions.length;
@@ -135,11 +126,36 @@ useEffect(() => {
   const pendingQuestions = assignedQuestions - solvedQuestions;
 
   const username = localStorage.getItem("currentUsername") || "User";
+  const email = localStorage.getItem("currentUserEmail") || "user@email.com";
+  const phone = localStorage.getItem("currentUserMobile") || "0000000000";
+  const education = {
+    college: localStorage.getItem("college") || "-",
+    degree: localStorage.getItem("degree") || "-",
+    branch: localStorage.getItem("branch") || "-",
+    year: localStorage.getItem("year") || "-"
+  };
+  const bank = {
+    bankName: localStorage.getItem("bankName") || "-",
+    accountNumber: localStorage.getItem("accountNumber") || "-",
+    ifsc: localStorage.getItem("ifsc") || "-"
+  };
+  const userType = "user";
+  const password = localStorage.getItem("currentPassword") || "";
 
+  const navigate = useNavigate();
   const handleLogout = () => {
     localStorage.removeItem("currentUserMobile");
-    window.location.href = "/";
+    navigate("/");
   };
+
+  // Handler to open profile modal (only on Profile option click)
+  const handleProfileClick = () => {
+    setShowDropdown(false);
+    setShowProfileModal(true);
+  };
+
+  // Handler to close profile modal
+  const handleCloseProfile = () => setShowProfileModal(false);
 
   return (
     <div className="dashboard-container" style={{ background: "#fff", minHeight: "100vh" }}>
@@ -154,34 +170,35 @@ useEffect(() => {
         <Header
           title="User Dashboard"
           username={username}
-          showProfile={showProfile}
-          setShowProfile={setShowProfile}
+          password={password}
+          showProfile={showDropdown}
+          setShowProfile={setShowDropdown}
           handleLogout={handleLogout}
+          userType={userType}
+          user={{ name: username, email, phone }}
+          education={education}
+          bank={bank}
+          onProfileClick={handleProfileClick}
         />
       </div>
       <div style={{ marginTop: "90px"}}>
-        <nav className="dashboard-navbar">
-          <ul>
-            <li>
-              <button
-                className={section === "status" ? "nav-active" : ""}
-                onClick={() => setSection("status")}
-                type="button"
-              >
-                <span role="img" aria-label="status">📊</span> Status
-              </button>
-            </li>
-            <li>
-              <button
-                className={section === "tasks" ? "nav-active" : ""}
-                onClick={() => setSection("tasks")}
-                type="button"
-              >
-                <span role="img" aria-label="tasks">📝</span> Tasks
-              </button>
-            </li>
-          </ul>
-        </nav>
+        <div className="userdashboard-tab-bar">
+          <button
+            className={`userdashboard-tab${section === "status" ? " active" : ""}`}
+            onClick={() => setSection("status")}
+          >
+            <FaListOl className="tab-icon" />
+            Status
+          </button>
+          <div className="userdashboard-tab-divider" />
+          <button
+            className={`userdashboard-tab${section === "tasks" ? " active" : ""}`}
+            onClick={() => setSection("tasks")}
+          >
+            <FaTasks className="tab-icon" />
+            Tasks
+          </button>
+        </div>
         {section === "status" && (
           <div>
             <div className="card-row-wide">
@@ -230,6 +247,15 @@ useEffect(() => {
           />
         )}
       </div>
+      {/* Profile Modal */}
+      {showProfileModal && (
+        <ProfilePage
+          user={{ name: username, email, phone }}
+          education={education}
+          bank={bank}
+          onClose={handleCloseProfile}
+        />
+      )}
     </div>
   );
 };
