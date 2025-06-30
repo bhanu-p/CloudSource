@@ -86,7 +86,7 @@ const UserDashboard = () => {
         localStorage.setItem("questions", JSON.stringify(updatedQuestions));
         setVisibleCount(receivedCount + 1);
       }
-    }, 2 * 60 * 1000); // 2 minutes
+    }, 20 * 1000); // 2 minutes
 
     return () => clearInterval(intervalRef.current);
   }, []);
@@ -232,7 +232,7 @@ const UserDashboard = () => {
               </div>
             </div>
             <div className="progress-ring-container">
-              <ProgressRing progress={solvedQuestions} total={totalQuestions} />
+              <ProgressRing progress={solvedQuestions} total={assignedQuestions} />
               <div className="progress-label">
                 Completion Status
               </div>
