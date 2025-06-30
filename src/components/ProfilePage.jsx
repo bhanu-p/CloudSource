@@ -1,6 +1,13 @@
-import React, { useState, useEffect } from "react";
-import { FaUserCircle, FaGraduationCap, FaUniversity } from "react-icons/fa";
+import React, { useState, useEffect, useRef } from "react";
+import { FaUserCircle, FaGraduationCap, FaUniversity, FaCamera, FaPencilAlt } from "react-icons/fa";
 import "../App.css";
+
+const getInitials = (name) => {
+  if (!name) return "";
+  const parts = name.trim().split(" ");
+  if (parts.length === 1) return parts[0][0]?.toUpperCase() || "";
+  return (parts[0][0] + parts[1][0]).toUpperCase();
+};
 
 const ProfilePage = ({ onClose }) => {
   const [user, setUser] = useState({});
@@ -9,6 +16,12 @@ const ProfilePage = ({ onClose }) => {
   const [tab, setTab] = useState("education");
   const [profilePercent, setProfilePercent] = useState(100);
   const [qualification, setQualification] = useState("");
+  const [profilePic, setProfilePic] = useState(null);
+  const [showEditUser, setShowEditUser] = useState(false);
+  const [showEditBank, setShowEditBank] = useState(false);
+  const [editUser, setEditUser] = useState({});
+  const [editBank, setEditBank] = useState({});
+  const fileInputRef = useRef();
 
   useEffect(() => {
     const currentUserMobile = localStorage.getItem("currentUserMobile");
@@ -39,6 +52,7 @@ const ProfilePage = ({ onClose }) => {
     setEducation(edu);
     setBank(bankData);
     setQualification(qual);
+
     // Profile percent: count filled fields
     let filled = 0, total = 7;
     if (userObj.username) filled++;
@@ -49,7 +63,24 @@ const ProfilePage = ({ onClose }) => {
     if (edu.intermediate) filled++;
     if (bankData.bankName) filled++;
     setProfilePercent(Math.round((filled / total) * 100));
+
+    // Load profile picture if saved
+    const pic = localStorage.getItem(`profilePic_${currentUserMobile}`);
+    if (pic) setProfilePic(pic);
   }, []);
+
+  // Profile picture upload
+  const handleProfilePicChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      setProfilePic(ev.target.result);
+      const currentUserMobile = localStorage.getItem("currentUserMobile");
+      localStorage.setItem(`profilePic_${currentUserMobile}`, ev.target.result);
+    };
+    reader.readAsDataURL(file);
+  };
 
   // Personal Details block
   const renderPersonalDetails = () => (
@@ -62,129 +93,270 @@ const ProfilePage = ({ onClose }) => {
 
   // User Details block
   const renderUserDetails = () => (
-    <div className="profile-block">
-      <div className="profile-block-title">User Details</div>
+    <div className="profile-block profile-block-user">
+      <div className="profile-block-title" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <span>User Details</span>
+        <span style={{ display: "flex", alignItems: "center", cursor: "pointer" }} className="profile-edit-icon" title="Edit" onClick={() => {
+          setEditUser({ ...user });
+          setShowEditUser(true);
+        }}>
+          <FaPencilAlt style={{ marginRight: 4 }} /> <span>Edit</span>
+        </span>
+      </div>
       <div className="profile-row"><b>Email:</b> {user.email}</div>
       <div className="profile-row"><b>Phone:</b> {user.phone}</div>
     </div>
   );
 
-  // Education Section blocks (show only up to highest qualification)
+  // Edit User Details form
+  const renderEditUserForm = () => (
+    <div className="profile-edit-form-overlay">
+      <div className="profile-edit-form">
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <h2 style={{ margin: 0 }}>User Details</h2>
+          <button
+            className="profile-close-btn-full profile-close-btn-emoji"
+            onClick={() => setShowEditUser(false)}
+            title="Close"
+            style={{ marginLeft: 16 }}
+          >
+            <span role="img" aria-label="close">X</span>
+          </button>
+        </div>
+        <form onSubmit={e => {
+          e.preventDefault();
+          setUser({ ...editUser });
+          setShowEditUser(false);
+          // Save to localStorage
+          const currentUserMobile = localStorage.getItem("currentUserMobile");
+          let appUsers = [];
+          try {
+            appUsers = JSON.parse(localStorage.getItem("appUsers")) || [];
+          } catch { appUsers = []; }
+          const idx = appUsers.findIndex(u => u.phone === currentUserMobile);
+          if (idx !== -1) {
+            appUsers[idx] = { ...appUsers[idx], username: editUser.name, email: editUser.email, phone: editUser.phone };
+          }
+          localStorage.setItem("appUsers", JSON.stringify(appUsers));
+          localStorage.setItem("currentUsername", editUser.name);
+          localStorage.setItem("currentUserMobile", editUser.phone);
+        }}>
+          <label>Name</label>
+          <input
+            type="text"
+            value={editUser.name || ""}
+            placeholder="Enter name"
+            onChange={e => setEditUser({ ...editUser, name: e.target.value })}
+          />
+          <label>Email</label>
+          <input
+            type="email"
+            value={editUser.email || ""}
+            placeholder="Enter email"
+            onChange={e => setEditUser({ ...editUser, email: e.target.value })}
+          />
+          <label>Phone</label>
+          <input
+            type="text"
+            value={editUser.phone || ""}
+            placeholder="Enter phone"
+            onChange={e => setEditUser({ ...editUser, phone: e.target.value })}
+          />
+          <button type="submit" className="profile-submit-btn">Submit</button>
+        </form>
+      </div>
+    </div>
+  );
+
+  // Edit Bank Details form
+  const renderEditBankForm = () => (
+    <div className="profile-edit-form-overlay">
+      <div className="profile-edit-form">
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <h2 style={{ margin: 0 }}>Bank Details</h2>
+          <button
+            className="profile-close-btn-full profile-close-btn-emoji"
+            onClick={() => setShowEditBank(false)}
+            title="Close"
+            style={{ marginLeft: 16 }}
+          >
+            <span role="img" aria-label="close">X</span>
+          </button>
+        </div>
+        <form onSubmit={e => {
+          e.preventDefault();
+          setBank({ ...editBank });
+          setShowEditBank(false);
+          // Save to localStorage
+          const currentUserMobile = localStorage.getItem("currentUserMobile");
+          let onboardData = {};
+          try {
+            onboardData = JSON.parse(localStorage.getItem(`onboardData_${currentUserMobile}`)) || {};
+          } catch { onboardData = {}; }
+          onboardData.bankDetails = { ...editBank };
+          localStorage.setItem(`onboardData_${currentUserMobile}` , JSON.stringify(onboardData));
+        }}>
+          <label>Account Number</label>
+          <input
+            type="text"
+            value={editBank.accNumber || ""}
+            placeholder="Enter account number"
+            onChange={e => setEditBank({ ...editBank, accNumber: e.target.value })}
+          />
+          <label>IFSC</label>
+          <input
+            type="text"
+            value={editBank.ifsc || ""}
+            placeholder="Enter IFSC"
+            onChange={e => setEditBank({ ...editBank, ifsc: e.target.value })}
+          />
+          <label>Bank Name</label>
+          <input
+            type="text"
+            value={editBank.bankName || ""}
+            placeholder="Enter bank name"
+            onChange={e => setEditBank({ ...editBank, bankName: e.target.value })}
+          />
+          <label>Branch</label>
+          <input
+            type="text"
+            value={editBank.branch || ""}
+            placeholder="Enter branch"
+            onChange={e => setEditBank({ ...editBank, branch: e.target.value })}
+          />
+          <button type="submit" className="profile-submit-btn">Submit</button>
+        </form>
+      </div>
+    </div>
+  );
+
+  // ...existing code for renderEducationSection and renderBankSection...
+
   const renderEducationSection = () => {
-  const blocks = [];
-  // Get interDiploma selection from onboarding data
-  let interDiploma = "";
-  try {
-    const currentUserMobile = localStorage.getItem("currentUserMobile");
-    const onboardData = JSON.parse(localStorage.getItem(`onboardData_${currentUserMobile}`)) || {};
-    interDiploma = onboardData.interDiploma || "";
-  } catch {
-    interDiploma = "";
-  }
+    const blocks = [];
+    let interDiploma = "";
+    try {
+      const currentUserMobile = localStorage.getItem("currentUserMobile");
+      const onboardData = JSON.parse(localStorage.getItem(`onboardData_${currentUserMobile}`)) || {};
+      interDiploma = onboardData.interDiploma || "";
+    } catch {
+      interDiploma = "";
+    }
 
-  if (education.tenth) {
-    blocks.push(
-      <div className="profile-block" key="tenth">
-        <div className="profile-block-title">10th Details</div>
-        <div className="profile-row"><b>School:</b> {education.tenth.school || "-"}</div>
-        <div className="profile-row"><b>Marks:</b> {education.tenth.marks || "-"}</div>
-        <div className="profile-row"><b>Year:</b> {education.tenth.year || "-"}</div>
-      </div>
-    );
-  }
-
-  // For graduation or higher, show only the selected one: intermediate or diploma
-  if (["graduation", "postgraduation", "phd"].includes(qualification)) {
-    if (interDiploma === "intermediate" && education.intermediate) {
+    if (education.tenth) {
       blocks.push(
-        <div className="profile-block" key="intermediate">
-          <div className="profile-block-title">Intermediate Details</div>
-          <div className="profile-row"><b>College:</b> {education.intermediate.college || "-"}</div>
-          <div className="profile-row"><b>Marks:</b> {education.intermediate.marks || "-"}</div>
-          <div className="profile-row"><b>Year:</b> {education.intermediate.year || "-"}</div>
-        </div>
-      );
-    } else if (interDiploma === "diploma" && education.diploma) {
-      blocks.push(
-        <div className="profile-block" key="diploma">
-          <div className="profile-block-title">Diploma Details</div>
-          <div className="profile-row"><b>College:</b> {education.diploma.college || "-"}</div>
-          <div className="profile-row"><b>Marks:</b> {education.diploma.marks || "-"}</div>
-          <div className="profile-row"><b>Year:</b> {education.diploma.year || "-"}</div>
+        <div className="profile-block" key="tenth">
+          <div className="profile-block-title">10th Details</div>
+          <div className="profile-row"><b>School:</b> {education.tenth.school || "-"}</div>
+          <div className="profile-row"><b>Marks:</b> {education.tenth.marks || "-"}</div>
+          <div className="profile-row"><b>Year:</b> {education.tenth.year || "-"}</div>
         </div>
       );
     }
-  } else {
-    // For lower than graduation, show both if present
-    if (qualification === "intermediate" && education.intermediate) {
-      blocks.push(
-        <div className="profile-block" key="intermediate">
-          <div className="profile-block-title">Intermediate Details</div>
-          <div className="profile-row"><b>College:</b> {education.intermediate.college || "-"}</div>
-          <div className="profile-row"><b>Marks:</b> {education.intermediate.marks || "-"}</div>
-          <div className="profile-row"><b>Year:</b> {education.intermediate.year || "-"}</div>
-        </div>
-      );
-    }
-    if (qualification === "diploma" && education.diploma) {
-      blocks.push(
-        <div className="profile-block" key="diploma">
-          <div className="profile-block-title">Diploma Details</div>
-          <div className="profile-row"><b>College:</b> {education.diploma.college || "-"}</div>
-          <div className="profile-row"><b>Marks:</b> {education.diploma.marks || "-"}</div>
-          <div className="profile-row"><b>Year:</b> {education.diploma.year || "-"}</div>
-        </div>
-      );
-    }
-  }
 
-  if (["graduation", "postgraduation", "phd"].includes(qualification) && education.graduation) {
-    blocks.push(
-      <div className="profile-block" key="graduation">
-        <div className="profile-block-title">Graduation Details</div>
-        <div className="profile-row"><b>College:</b> {education.graduation.college || "-"}</div>
-        <div className="profile-row"><b>Stream:</b> {education.graduation.degree || "-"}</div>
-        <div className="profile-row"><b>Marks:</b> {education.graduation.marks || "-"}</div>
-        <div className="profile-row"><b>Year:</b> {education.graduation.year || "-"}</div>
+    if (["graduation", "postgraduation", "phd"].includes(qualification)) {
+      if (interDiploma === "intermediate" && education.intermediate) {
+        blocks.push(
+          <div className="profile-block" key="intermediate">
+            <div className="profile-block-title">Intermediate Details</div>
+            <div className="profile-row"><b>College:</b> {education.intermediate.college || "-"}</div>
+            <div className="profile-row"><b>Marks:</b> {education.intermediate.marks || "-"}</div>
+            <div className="profile-row"><b>Year:</b> {education.intermediate.year || "-"}</div>
+          </div>
+        );
+      } else if (interDiploma === "diploma" && education.diploma) {
+        blocks.push(
+          <div className="profile-block" key="diploma">
+            <div className="profile-block-title">Diploma Details</div>
+            <div className="profile-row"><b>College:</b> {education.diploma.college || "-"}</div>
+            <div className="profile-row"><b>Marks:</b> {education.diploma.marks || "-"}</div>
+            <div className="profile-row"><b>Year:</b> {education.diploma.year || "-"}</div>
+          </div>
+        );
+      }
+    } else {
+      if (qualification === "intermediate" && education.intermediate) {
+        blocks.push(
+          <div className="profile-block" key="intermediate">
+            <div className="profile-block-title">Intermediate Details</div>
+            <div className="profile-row"><b>College:</b> {education.intermediate.college || "-"}</div>
+            <div className="profile-row"><b>Marks:</b> {education.intermediate.marks || "-"}</div>
+            <div className="profile-row"><b>Year:</b> {education.intermediate.year || "-"}</div>
+          </div>
+        );
+      }
+      if (qualification === "diploma" && education.diploma) {
+        blocks.push(
+          <div className="profile-block" key="diploma">
+            <div className="profile-block-title">Diploma Details</div>
+            <div className="profile-row"><b>College:</b> {education.diploma.college || "-"}</div>
+            <div className="profile-row"><b>Marks:</b> {education.diploma.marks || "-"}</div>
+            <div className="profile-row"><b>Year:</b> {education.diploma.year || "-"}</div>
+          </div>
+        );
+      }
+    }
+
+    if (["graduation", "postgraduation", "phd"].includes(qualification) && education.graduation) {
+      blocks.push(
+        <div className="profile-block" key="graduation">
+          <div className="profile-block-title">Graduation Details</div>
+          <div className="profile-row"><b>College:</b> {education.graduation.college || "-"}</div>
+          <div className="profile-row"><b>Stream:</b> {education.graduation.degree || "-"}</div>
+          <div className="profile-row"><b>Marks:</b> {education.graduation.marks || "-"}</div>
+          <div className="profile-row"><b>Year:</b> {education.graduation.year || "-"}</div>
+        </div>
+      );
+    }
+    if (["postgraduation", "phd"].includes(qualification) && education.postgraduation) {
+      blocks.push(
+        <div className="profile-block" key="postgraduation">
+          <div className="profile-block-title">Postgraduation Details</div>
+          <div className="profile-row"><b>College:</b> {education.postgraduation.college || "-"}</div>
+          <div className="profile-row"><b>Stream:</b> {education.postgraduation.degree || "-"}</div>
+          <div className="profile-row"><b>Marks:</b> {education.postgraduation.marks || "-"}</div>
+          <div className="profile-row"><b>Year:</b> {education.postgraduation.year || "-"}</div>
+        </div>
+      );
+    }
+    if (qualification === "phd" && education.phd) {
+      blocks.push(
+        <div className="profile-block" key="phd">
+          <div className="profile-block-title">PhD Details</div>
+          <div className="profile-row"><b>College:</b> {education.phd.college || "-"}</div>
+          <div className="profile-row"><b>Stream:</b> {education.phd.degree || "-"}</div>
+          <div className="profile-row"><b>Marks:</b> {education.phd.marks || "-"}</div>
+          <div className="profile-row"><b>Year:</b> {education.phd.year || "-"}</div>
+        </div>
+      );
+    }
+    if (blocks.length === 0) {
+      blocks.push(
+        <div className="profile-block" key="none">
+          <div className="profile-block-title">No Education Details</div>
+        </div>
+      );
+    }
+    // Show two cards per row
+    return (
+      <div className="profile-blocks-container profile-edu-grid">
+        {blocks}
       </div>
     );
-  }
-  if (["postgraduation", "phd"].includes(qualification) && education.postgraduation) {
-    blocks.push(
-      <div className="profile-block" key="postgraduation">
-        <div className="profile-block-title">Postgraduation Details</div>
-        <div className="profile-row"><b>College:</b> {education.postgraduation.college || "-"}</div>
-        <div className="profile-row"><b>Stream:</b> {education.postgraduation.degree || "-"}</div>
-        <div className="profile-row"><b>Marks:</b> {education.postgraduation.marks || "-"}</div>
-        <div className="profile-row"><b>Year:</b> {education.postgraduation.year || "-"}</div>
-      </div>
-    );
-  }
-  if (qualification === "phd" && education.phd) {
-    blocks.push(
-      <div className="profile-block" key="phd">
-        <div className="profile-block-title">PhD Details</div>
-        <div className="profile-row"><b>College:</b> {education.phd.college || "-"}</div>
-        <div className="profile-row"><b>Stream:</b> {education.phd.degree || "-"}</div>
-        <div className="profile-row"><b>Marks:</b> {education.phd.marks || "-"}</div>
-        <div className="profile-row"><b>Year:</b> {education.phd.year || "-"}</div>
-      </div>
-    );
-  }
-  if (blocks.length === 0) {
-    blocks.push(
-      <div className="profile-block" key="none">
-        <div className="profile-block-title">No Education Details</div>
-      </div>
-    );
-  }
-  return <div className="profile-blocks-container">{blocks}</div>;
-};
-  // Bank Section block
+  };
+
   const renderBankSection = () => (
     <div className="profile-blocks-container">
-      <div className="profile-block">
-        <div className="profile-block-title">Bank Details</div>
+      <div className="profile-block profile-block-bank">
+        <div className="profile-block-title" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <span>Bank Details</span>
+          <span style={{ display: "flex", alignItems: "center", cursor: "pointer" }} className="profile-edit-icon" title="Edit" onClick={() => {
+            setEditBank({ ...bank });
+            setShowEditBank(true);
+          }}>
+            <FaPencilAlt style={{ marginRight: 4 }} /> <span>Edit</span>
+          </span>
+        </div>
         <div className="profile-row"><b>Account Number:</b> {bank.accNumber || "-"}</div>
         <div className="profile-row"><b>IFSC:</b> {bank.ifsc || "-"}</div>
         <div className="profile-row"><b>Bank Name:</b> {bank.bankName || "-"}</div>
@@ -197,14 +369,32 @@ const ProfilePage = ({ onClose }) => {
     <div className="profile-page-full-overlay">
       <div className="profile-page-full-modal profile-page-colorful">
         <button className="profile-close-btn-full profile-close-btn-emoji" onClick={onClose} title="Close">
-          <span role="img" aria-label="close">❌</span>
+          <span role="img" aria-label="close">X</span>
         </button>
         <div className="profile-full-header">
-          <div className="profile-full-avatar">
-            {user.name ? user.name[0].toUpperCase() : <FaUserCircle size={60} />}
-          </div>
-          <div className="profile-full-userinfo">
-            <div className="profile-full-name">{user.name}</div>
+          <div className="profile-full-avatar-container" style={{ display: "flex", alignItems: "center" }}>
+            <div className="profile-full-avatar">
+              {profilePic ? (
+                <img src={profilePic} alt="Profile" className="profile-avatar-img" />
+              ) : (
+                <span className="profile-avatar-initials">{getInitials(user.name)}</span>
+              )}
+              <button
+                className="profile-avatar-camera"
+                onClick={() => fileInputRef.current.click()}
+                title="Upload Profile Picture"
+              >
+                <FaCamera />
+              </button>
+              <input
+                type="file"
+                accept="image/*"
+                style={{ display: "none" }}
+                ref={fileInputRef}
+                onChange={handleProfilePicChange}
+              />
+            </div>
+            <div style={{ marginLeft: 16, fontWeight: 600, fontSize: 30, color: '#1976d2' }}>{user.name}</div>
           </div>
           <div className="profile-full-progress">
             <svg width="72" height="72" className="profile-progress-circle">
@@ -252,6 +442,8 @@ const ProfilePage = ({ onClose }) => {
             {tab === "bank" && renderBankSection()}
           </div>
         </div>
+        {showEditUser && renderEditUserForm()}
+        {showEditBank && renderEditBankForm()}
       </div>
     </div>
   );
