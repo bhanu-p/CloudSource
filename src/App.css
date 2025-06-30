@@ -645,7 +645,7 @@ label {
 } */
 
 /* Smaller task cards */
-.task-card {
+/* .task-card {
   min-width: 0;
   max-width: 600px;
   max-height: 400px;
@@ -654,7 +654,7 @@ label {
   margin: 0 auto;
   margin-bottom: 0;
   gap: 0rem;
-}
+} */
 
 /* Responsive for mobile */
 @media (max-width: 768px) {
@@ -1127,7 +1127,6 @@ label {
 
 
 
-
 /* admin dashboard CSS */
 
 * {
@@ -1139,10 +1138,9 @@ body,
 #root {
   margin: 0;
   padding: 0px;
-  height: 100%;
+  height: auto;
   width: 100%;
   font-family: 'Segoe UI', sans-serif;
-  /* background-color: #f7f7f7f1; */
   background-color: #fff;
 
 }
@@ -1324,7 +1322,7 @@ body,
   box-shadow: 0 8px 32px rgba(25, 118, 210, 0.08), 0 1.5px 6px rgba(0, 0, 0, 0.06);
   padding: 32px 28px;
   max-width: 1450px;
-  margin: 0 auto 40px;
+  margin: auto;
   transition: transform 0.3s, box-shadow 0.3s;
   transition: box-shadow 0.3s;
 }
@@ -2670,7 +2668,9 @@ label {
   gap: 0;
   position: relative;
   transition: box-shadow 0.2s, transform 0.2s;
-  overflow: visible; /* Make sure children are not clipped */
+  overflow: hidden;
+  max-height: fit-content;
+  
 }
 
 .task-card:hover {
@@ -2784,6 +2784,8 @@ label {
 
 
 
+
+
 .admin-card-row-wide {
   display: flex;
   flex-wrap: wrap;
@@ -2874,11 +2876,6 @@ label {
   box-shadow: 0 4px 16px rgba(67, 160, 71, 0.15);
 }
 
-.admin-card-row-wide .admin-card-blue:nth-child(4) {
-  border-color: #1976d2;
-  background: linear-gradient(135deg, #e3f2fd 60%, #bbdefb 100%);
-  box-shadow: 0 4px 16px rgba(25, 118, 210, 0.15);
-}
 
 .onboard-container,
 .page-container,
@@ -3507,9 +3504,6 @@ label {
   align-items: stretch; /* or remove this line */
 }
 
-
-
-
 .login-resetPassword-redirect p {
   text-align: right;
   font-size: 14px;
@@ -3664,13 +3658,67 @@ label {
 }
 
 
-.admin-dashboard-checkbox {
+/* .admin-dashboard-checkbox {
   margin-right: 4px;
   transform: scale(1.2);
   cursor: pointer;
   background-color: #007bff;
+} */
+
+/* Custom Checkbox Styles */
+.admin-dashboard-custom-checkbox-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  margin-right: 10px;
+  position: relative;
 }
 
+.admin-dashboard-custom-checkbox-input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.admin-dashboard-custom-checkbox-box {
+  height: 20px;
+  width: 20px;
+  background-color: #fff;
+  border: 2px solid #1976d2;
+  border-radius: 4px;
+  display: inline-block;
+  position: relative;
+  transition: background 0.2s, border 0.2s;
+}
+
+.admin-dashboard-custom-checkbox-input:checked + .admin-dashboard-custom-checkbox-box {
+  background-color: #1976d2;
+  border-color: #1976d2;
+}
+
+.admin-dashboard-custom-checkbox-box:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+.admin-dashboard-custom-checkbox-input:checked + .admin-dashboard-custom-checkbox-box:after {
+  display: block;
+}
+
+.admin-dashboard-custom-checkbox-label .admin-dashboard-custom-checkbox-box:after {
+  left: 5px;
+  top: 1px;
+  width: 6px;
+  height: 12px;
+  border: solid #fff;
+  border-width: 0 3px 3px 0;
+  transform: rotate(45deg);
+  content: "";
+  position: absolute;
+}
 .admin-dashboard-multiple-choice-input {
   flex: 1;
   padding: 8px 12px;
@@ -3733,3 +3781,125 @@ label {
 
 
 
+.tasks-mcq-option-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  padding: 6px 0;
+
+}
+
+.tasks-mcq-option-row input[type="checkbox"] {
+  accent-color: #1976d2;
+  width: 18px;
+  height: 18px;
+  margin-right: 8px;
+
+}
+
+.tasks-mcq-option-row label,
+.tasks-mcq-option-row span {
+  font-size: 16px;
+  color: #222;
+  font-family: inherit;
+}
+.tasks-mcq-options-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 2 columns */
+  gap: 12px 24px; /* row gap, column gap */
+  padding-left: 2px;
+  max-width: 600px;
+
+}
+
+.tasks-custom-radio-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  gap: 10px;
+  position: relative;
+  font-size: 16px;
+  color: #222;
+}
+
+.tasks-custom-radio-input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.tasks-custom-radio-box {
+  height: 20px;
+  width: 20px;
+  background-color: #fff;
+  border: 2px solid #1976d2;
+  border-radius: 50%;
+  display: inline-block;
+  position: relative;
+  transition: background 0.2s, border 0.2s;
+}
+
+.tasks-custom-radio-input:checked + .tasks-custom-radio-box {
+  background-color: #1976d2;
+  border-color: #1976d2;
+}
+
+.tasks-custom-radio-box:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+.tasks-custom-radio-input:checked + .tasks-custom-radio-box:after {
+  display: block;
+}
+
+.tasks-custom-radio-label .tasks-custom-radio-box:after {
+  left: 6px;
+  top: 2.5px;
+  width: 6px;
+  height: 12px;
+  border: solid #fff;
+  border-width: 0 3px 3px 0;
+  transform: rotate(45deg);
+  content: "";
+  position: absolute;
+}
+
+/* .task-submit-btn {
+  margin-top: 8px;
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 20px;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background 0.2s;
+} */
+.task-submit-btn {
+  width: 100%;
+  grid-column: 1 / -1;      /* Make button span both columns in grid */
+  margin-top: 5px;
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 0;
+  font-weight: 600;
+  font-size: 1.15rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  box-shadow: none;
+  text-align: center;
+  letter-spacing: 0.01em;
+  display: block;
+}
+
+.task-submit-btn:hover {
+  background: #1251a2;
+}
