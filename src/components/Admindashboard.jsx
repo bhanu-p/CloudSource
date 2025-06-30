@@ -48,6 +48,7 @@ const AdminDashboard = () => {
   };
 
   const handleSetQA = () => {
+
     if (!question.trim()) {
       setError("Please enter the question.");
       return;
@@ -123,10 +124,9 @@ const AdminDashboard = () => {
       />
 
 
-
       <div className="admin-card-row-wide">
         <div className="admin-card admin-card-blue admin-card-outline" >
-          <FaListOl className="admin-card-icon blue" style={{ color: "#512da8", fontWeight: "bold" }} />
+          <FaListOl className="admin-card-icon" style={{ color: "#512da8", fontWeight: "bold" }} />
           <div>
             <h3>Total Questions</h3>
             <p style={{ color: "#512da8", fontWeight: "bold" }}>{totalQuestions}</p>
@@ -134,7 +134,7 @@ const AdminDashboard = () => {
         </div>
 
         <div className="admin-card admin-card-blue admin-card-outline">
-          <FaTasks className="admin-card-icon purple" style={{ color: "#c49000", fontWeight: "bold" }} />
+          <FaTasks className="admin-card-icon" style={{ color: "#c49000", fontWeight: "bold" }} />
           <div>
             <h3>Pushed</h3>
             <p style={{ color: "#c49000", fontWeight: "bold" }}>{pushedQuestions}</p>
@@ -142,14 +142,14 @@ const AdminDashboard = () => {
         </div>
 
         <div className="admin-card admin-card-blue admin-card-outline">
-          <FaCheckCircle className="admin-card-icon green" style={{ color: "#43a047", fontWeight: "bold" }} />
+          <FaCheckCircle className="admin-card-icon" style={{ color: "#43a047", fontWeight: "bold" }} />
           <div>
             <h3>Attempted</h3>
             <p style={{ color: "#43a047", fontWeight: "bold" }}>{attemptedQuestions}</p>
           </div>
         </div>
 
-        <div className="admin-card admin-card-add" onClick={() => setShowPopup(true)}>
+        <div className="admin-card admin-card-add " onClick={() => setShowPopup(true)}>
           <div className="admin-card-icon-wrapper">
             <FaPlus className="admin-card-icon" />
           </div>
@@ -233,7 +233,7 @@ const AdminDashboard = () => {
                   className="admin-dashboard-popup-textarea"
                   rows={2}
                 />
-                {error && <p className="admin-dashboard-error-text">{error}</p>}
+                
 
                 <div className="admin-dashboard-answer-type-container">
                   {["single", "multiple", "multipleChoice"].map((type) => (
@@ -290,16 +290,8 @@ const AdminDashboard = () => {
                   <div className="admin-dashboard-multiple-choice-container">
                     {multipleChoiceOptions.map((option, idx) => (
                       <div key={idx} className="admin-dashboard-multiple-choice-row">
+                        <label className="admin-dashboard-custom-checkbox-label">
                         <input
-                          // type="checkbox"
-                          // checked={option.checked}
-                          // onChange={e => {
-                          //   const updated = [...multipleChoiceOptions];
-                          //   updated[idx].checked = e.target.checked;
-                          //   setMultipleChoiceOptions(updated);
-                          // }}
-                          // className="admin-dashboard-checkbox"
-
                           type="checkbox"
                           name="multipleChoiceCorrect"
                           checked={option.checked}
@@ -310,8 +302,10 @@ const AdminDashboard = () => {
                             }));
                             setMultipleChoiceOptions(updated);
                           }}
-                          className="admin-dashboard-checkbox"
+                          className="admin-dashboard-custom-checkbox-input"
                         />
+                        <span className="admin-dashboard-custom-checkbox-box"></span>
+                        </label>
                         <input
                           type="text"
                           value={option.value}
@@ -351,8 +345,9 @@ const AdminDashboard = () => {
 
                 )}
               </div>
-
+             
             </div>
+             {error && <p className="admin-dashboard-error-text">{error}</p>}
             <div className="admin-dashboard-popup-actions">
               <button className="admin-dashboard-popup-button" onClick={handleSetQA}>
                 Submit
@@ -376,6 +371,6 @@ const AdminDashboard = () => {
       )}
     </div>
   );
-};
+};      
 
 export default AdminDashboard;
