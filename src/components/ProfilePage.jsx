@@ -135,19 +135,11 @@ const ProfilePage = ({ onClose }) => {
           } catch { appUsers = []; }
           const idx = appUsers.findIndex(u => u.phone === currentUserMobile);
           if (idx !== -1) {
-            appUsers[idx] = { ...appUsers[idx], username: editUser.name, email: editUser.email, phone: editUser.phone };
+            appUsers[idx] = { ...appUsers[idx], email: editUser.email, phone: editUser.phone };
           }
           localStorage.setItem("appUsers", JSON.stringify(appUsers));
-          localStorage.setItem("currentUsername", editUser.name);
           localStorage.setItem("currentUserMobile", editUser.phone);
         }}>
-          <label>Name</label>
-          <input
-            type="text"
-            value={editUser.name || ""}
-            placeholder="Enter name"
-            onChange={e => setEditUser({ ...editUser, name: e.target.value })}
-          />
           <label>Email</label>
           <input
             type="email"
@@ -230,8 +222,7 @@ const ProfilePage = ({ onClose }) => {
     </div>
   );
 
-  // ...existing code for renderEducationSection and renderBankSection...
-
+  // Education Section blocks (show only up to highest qualification)
   const renderEducationSection = () => {
     const blocks = [];
     let interDiploma = "";
