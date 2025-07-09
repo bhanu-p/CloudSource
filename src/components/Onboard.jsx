@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../App.css";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Onboard = () => {
   const navigate = useNavigate();
   const currentMobile = localStorage.getItem("currentUserMobile");
+  
+  console.log("Current mobile:", currentMobile);
 
   const [step, setStep] = useState(1);
   const [qualification, setQualification] = useState("");
@@ -52,11 +56,18 @@ const Onboard = () => {
           return false;
         };
         if (!hasEmptyValues(existingData)) {
+          console.log("Redirecting to dashboard, found complete onboarding data");
           navigate("/dashboard");
+        } else {
+          console.log("Found incomplete onboarding data, staying on onboarding page");
         }
-      } catch (err) {}
+      } catch (err) {
+        console.error("Error parsing onboarding data:", err);
+      }
+    } else {
+      console.log("No onboarding data found, staying on onboarding page");
     }
-  }, [navigate]);
+  }, [navigate, currentMobile]);
 
   const isAlpha = (val) => /^[A-Za-z ]+$/.test(val.trim());
   const isNumeric = (val) => /^[0-9]+(\.[0-9]+)?$/.test(val.trim());
@@ -252,24 +263,40 @@ const Onboard = () => {
   };
 
   const handleNext = () => {
+    console.log("Next button clicked");
     if (validateStep1()) {
+      console.log("Step 1 validation passed");
+      toast.success("Educational details saved successfully!");
       setStep(2);
       setErrors({});
+    } else {
+      console.log("Step 1 validation failed with errors:", errors);
     }
   };
 
   const handleSubmit = () => {
+    console.log("Submit button clicked");
     if (validateStep2()) {
+      console.log("Step 2 validation passed");
+      toast.success("Onboarding completed successfully!");
       localStorage.setItem(
         `onboardData_${currentMobile}`,
         JSON.stringify({ eduDetails, bankDetails, qualification, interDiploma, markTypes })
       );
-      navigate("/dashboard");
+      
+      console.log("Onboarding data saved, navigating to dashboard in 1.5 seconds");
+      // Add a small delay to show the toast before navigation
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 1500);
+    } else {
+      console.log("Step 2 validation failed with errors:", errors);
     }
   };
 
   return (
     <div className="onboard-container">
+      {console.log("Rendering Onboard component, step:", step)}
       <h2>Onboarding</h2>
       <div className="onboard-stepper">
         <div className={`step-circle${step === 1 ? " active" : ""}`}>1</div>
@@ -410,3 +437,14 @@ const Onboard = () => {
 };
 
 export default Onboard;
+
+
+
+
+
+
+
+
+
+
+
