@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const ResetPassword = () => {
     const [identifier, setIdentifier] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
-    const [error, setError] = useState("");
-    const [success, setSuccess] = useState("");
     const navigate = useNavigate();
 
     const validatePassword = (password) => {
@@ -21,18 +21,17 @@ const ResetPassword = () => {
         e.preventDefault();
 
         if (!identifier || !newPassword || !confirmPassword) {
-            setError("Please fill all details.");
+            toast.error("Please fill all details.");
             return;
         }
 
-
         if (newPassword !== confirmPassword) {
-            setError("Passwords do not match.");
+            toast.error("Passwords do not match.");
             return;
         }
 
         if (!validatePassword(newPassword)) {
-            setError(
+            toast.error(
                 "Password must be at least 8 characters, include uppercase, lowercase, and a number."
             );
             return;
@@ -46,14 +45,14 @@ const ResetPassword = () => {
         );
 
         if (userIndex === -1) {
-            setError("User not found.");
+            toast.error("User not found.");
             return;
         }
 
         users[userIndex].password = newPassword;
         localStorage.setItem("appUsers", JSON.stringify(users));
 
-        setSuccess("Reset Password successful!");
+        toast.success("Reset Password successful!");
     };
 
     return (
@@ -85,9 +84,6 @@ const ResetPassword = () => {
                     onChange={(e) => setConfirmPassword(e.target.value)}
                 />
 
-                {error && <p className="error-text">{error}</p>}
-                {success && <p className="success-text">{success}</p>}
-
                 <button type="submit" className="resetPassword-button">Reset Password</button><br />
 
                 <div className="resetPassword-redirect">
@@ -98,6 +94,7 @@ const ResetPassword = () => {
                     </p>
                 </div>
             </form>
+            <ToastContainer position="top-center"/>
         </div>
 
     );

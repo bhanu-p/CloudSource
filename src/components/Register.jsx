@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-// import "./Register.css"; // Separate CSS for Register
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -10,8 +11,6 @@ const Register = () => {
     password: "",
     confirmPassword: "",
   });
-  const [success, setSuccess] = useState("");
-  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -34,38 +33,32 @@ const Register = () => {
     e.preventDefault();
 
     if (!formData.username || !formData.phone || !formData.email || !formData.password) {
-      setSuccess("");
-      setError("Please fill in all fields.");
+      toast.error("Please fill in all fields.");
       return;
     }
 
     if (formData.username.length < 6) {
-      setSuccess("");
-      setError("Username must be at least 6 characters.");
+      toast.error("Username must be at least 6 characters.");
       return;
     }
 
     if (!/^\d{10}$/.test(formData.phone)) {
-      setSuccess("");
-      setError("Phone number must be exactly 10 digits.");
+      toast.error("Phone number must be exactly 10 digits.");
       return;
     }
 
     if (!validateEmail(formData.email)) {
-      setSuccess("");
-      setError("Invalid email format.");
+      toast.error("Invalid email format.");
       return;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      setSuccess("");
-      setError("Passwords do not match.");
+      toast.error("Passwords do not match.");
       return;
     }
 
     if (!validatePassword(formData.password)) {
-      setSuccess("");
-      setError("Password must be at least 8 characters, include uppercase, lowercase, and a number.");
+      toast.error("Password must be at least 8 characters, include uppercase, lowercase, and a number.");
       return;
     }
 
@@ -73,12 +66,12 @@ const Register = () => {
     const users = usersString ? JSON.parse(usersString) : [];
 
     if (users.some((user) => user.phone === formData.phone)) {
-      setError("Phone Number already exists!");
+      toast.error("Phone Number already exists!");
       return;
     }
 
     if (users.some((user) => user.email === formData.email)) {
-      setError("Email already registered!");
+      toast.error("Email already registered!");
       return;
     }
 
@@ -91,8 +84,7 @@ const Register = () => {
 
     users.push(newUser);
     localStorage.setItem("appUsers", JSON.stringify(users));
-    setError("");
-    setSuccess("Registration Successful!");
+    toast.success("Registration Successful!");
   };
 
   return (
@@ -147,9 +139,6 @@ const Register = () => {
           onChange={handleChange}
         />
 
-        {error && <p className="error-text">{error}</p>}
-        {success && <p className="success-text">{success}</p>}
-
         <button className="register-login-button" type="submit">
           Register
         </button>
@@ -163,6 +152,7 @@ const Register = () => {
           </p>
         </div>
       </form>
+      <ToastContainer position="top-center" autoClose={5000} hideProgressBar={false} closeOnClick pauseOnHover draggable pauseOnFocusLoss />
     </div>
   );
 };

@@ -1,35 +1,32 @@
-import { useState } from "react";
+import React,{ useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Login = () => {
   const [mobile, setMobile] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const navigate = useNavigate();
 
   const handleLogin = (e) => {
     e.preventDefault();
 
-    setError("");
-    setSuccess("");
-
     if (!mobile || !password) {
-      setError("Please fill in both mobile number and password.");
+      toast.error("Please fill in both mobile number and password.");
       return;
     }
 
     if (mobile === "admin" && password === "admin") {
-      setSuccess("Admin Login Successful!");
+      toast.success("Admin Login Successful!");
       setTimeout(() => {
         navigate("/admindashboard");
-      }, 1000);
+      }, 3000);
       return;
     }
 
     const mobileRegex = /^[0-9]{10}$/;
     if (!mobileRegex.test(mobile)) {
-      setError("Please enter a valid 10-digit mobile number.");
+      toast.error("Please enter a valid 10-digit mobile number.");
       return;
     }
 
@@ -39,16 +36,16 @@ const Login = () => {
     const user = appUsers.find((user) => user.phone === mobile);
 
     if( !user) {
-      setError("User not found. Please register first.");
+      toast.error("User not found. Please register first.");
       return;
     }
 
     if (user.password !== password) {
-      setError("Incorrect mobile number or password.");
+      toast.error("Incorrect mobile number or password.");
       return;
     }
 
-    setSuccess("Login successful!");
+    toast.success("Login successful!");
 
     const visitedKey = `onboardData_${user.phone}`;
     const hasVisited = localStorage.getItem(visitedKey) != null;
@@ -82,9 +79,6 @@ const Login = () => {
           onChange={(e) => setPassword(e.target.value)}
         />
 
-        {error && <p className="error-text">{error}</p>}
-        {success && <p className="success-text">{success}</p>}
-
         <div className="login-resetPassword-redirect" style={{ textAlign: "right", marginBottom: "12px" }}>
           <p>
           <button type="button" onClick={() => navigate("/resetPassword")}>
@@ -104,6 +98,7 @@ const Login = () => {
           </p>
         </div>
       </form>
+      <ToastContainer position="top-center" />
     </div>
   );
 };
