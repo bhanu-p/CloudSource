@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 const Tasks = ({ answers, onAnswer, questions }) => {
-  const [mcqSelections, setMcqSelections] = useState({}); // For multiple choice answers
+  const [mcqSelections, setMcqSelections] = useState({}); 
 
   const unanswered = questions.filter(q => !answers[q.id]);
   const answered = questions.filter(q => answers[q.id]);
@@ -50,45 +50,6 @@ const Tasks = ({ answers, onAnswer, questions }) => {
             <div className="task-question">{q.title}</div>
             <form onSubmit={e => handleSubmit(e, q)}>
               {q.answerType === "multipleChoice" ? (
-                // <div>
-                //   {q.answer.map((option, idx) => (
-                //     <label key={idx} style={{ display: "flex", alignItems: "center", marginBottom: 8 }}>
-                //       <input
-                //         type="checkbox"
-                //         name={`mcq-${q.id}`}
-                //         checked={mcqSelections[q.id] === idx}
-                //         onChange={() =>
-                //           setMcqSelections(prev => ({ ...prev, [q.id]: idx }))
-                //         }
-                //         style={{ marginRight: 8 }}
-                //       />
-                //       {option.value}
-                //     </label>
-                //   ))}
-                //   <button type="submit" className="task-submit-btn" style={{ marginTop: 8 }}>
-                //     Submit
-                //   </button>
-                // </div>
-
-                // <div className="tasks-mcq-options-container">
-                //   {q.answer.map((option, idx) => (
-                //     <div className="tasks-mcq-option-row" key={idx}>
-                //       <input
-                //         type="checkbox"
-                //         name={`mcq-${q.id}`}
-                //         checked={mcqSelections[q.id] === idx}
-                //         onChange={() =>
-                //           setMcqSelections(prev => ({ ...prev, [q.id]: idx }))
-                //         }
-                //       />
-                //       <span>{option.value}</span>
-                //     </div>
-                //   ))}
-                //   <button type="submit" className="task-submit-btn">
-                //     Submit
-                //   </button>
-                // </div>
-
                 <div className="tasks-mcq-options-container">
                   {q.answer.map((option, idx) => (
                     <label className="tasks-custom-radio-label tasks-mcq-option-row" key={idx}>
@@ -133,9 +94,6 @@ const Tasks = ({ answers, onAnswer, questions }) => {
             <div className="task-answered">
               <span>Answered:</span>{" "}
               <span>
-                {/* {q.answerType === "multipleChoice"
-                  ? q.answer[answers[q.id]]?.value || "-"
-                  : answers[q.id]} */}
                   {q.answerType === "multiple"
           ? Array.isArray(answers[q.id])
             ? answers[q.id].join(", ")

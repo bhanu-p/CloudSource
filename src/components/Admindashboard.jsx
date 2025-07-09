@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaUserCircle, FaPlus, FaTrash, FaBell, FaListOl, FaTasks, FaCheckCircle, FaHourglassHalf } from "react-icons/fa";
 import Header from "./header";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -14,13 +16,12 @@ const AdminDashboard = () => {
 
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
-  const [error, setError] = useState("");
-  const [showSuccess, setShowSuccess] = useState(false);
+  // const [error, setError] = useState("");
+  // const [showSuccess, setShowSuccess] = useState(false);
   const [answerType, setAnswerType] = useState("single");
   const [multipleAnswers, setMultipleAnswers] = useState(["", ""]);
   const [multipleChoiceOptions, setMultipleChoiceOptions] = useState([{ value: "", checked: false }]);
 
-  // Get admin credentials from localStorage (or your login state)
   const currentUsername = localStorage.getItem("currentUsername") || "Admin";
   const currentPassword = localStorage.getItem("currentPassword") || "admin";
 
@@ -50,7 +51,7 @@ const AdminDashboard = () => {
   const handleSetQA = () => {
 
     if (!question.trim()) {
-      setError("Please enter the question.");
+      toast.error("Please enter the question.");
       return;
     }
 
@@ -58,11 +59,11 @@ const AdminDashboard = () => {
     if (answerType === "multipleChoice") {
       const validOptions = multipleChoiceOptions.filter(opt => opt.value.trim() !== "");
       if (validOptions.length < 2) {
-        setError("Please enter at least two options.");
+        toast.error("Please enter at least two options.");
         return;
       }
       if (!validOptions.some(opt => opt.checked)) {
-        setError("Please select at least one correct answer.");
+        toast.error("Please select at least one correct answer.");
         return;
       }
     }
@@ -99,9 +100,10 @@ const AdminDashboard = () => {
 
     setQuestion("");
     setAnswer("");
-    setError("");
+    // setError("");
     setShowPopup(false);
-    setShowSuccess(true);
+    // setShowSuccess(true);
+    toast.success("Question added successfully!");
     setMultipleAnswers(["", ""]);
     setMultipleChoiceOptions([{ value: "", checked: false }]);
   };
@@ -347,7 +349,7 @@ const AdminDashboard = () => {
               </div>
              
             </div>
-             {error && <p className="admin-dashboard-error-text">{error}</p>}
+             {/* {error && <p className="admin-dashboard-error-text">{error}</p>} */}
             <div className="admin-dashboard-popup-actions">
               <button className="admin-dashboard-popup-button" onClick={handleSetQA}>
                 Submit
@@ -360,15 +362,7 @@ const AdminDashboard = () => {
         </div>
       )}
 
-      {showSuccess && (
-        <div className="admin-dashboard-popup-overlay">
-          <div className="admin-dashboard-success-box">
-            <h3>✅ Question Added!</h3>
-            <p>Your question was successfully added to the Admin Dashboard.</p>
-            <button onClick={() => setShowSuccess(false)}>OK</button>
-          </div>
-        </div>
-      )}
+      <ToastContainer position="bottom-right"  />
     </div>
   );
 };      
